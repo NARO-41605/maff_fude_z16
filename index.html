@@ -120,7 +120,7 @@ var mvtSourceZ16 = new L.TileLayer.MVTSource({
     url: "./mvt/{z}/{x}/{y}.pbf",
     minZoom: 16,
     maxZoom: 16,
-    zIndex: 3,
+    zIndex: 4,
 //    debug: true,
     clickableLayers: ["fude"],
     mutexToggle:true,
@@ -193,7 +193,7 @@ var seamless = L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{
             maxZoom: 18
             }).addTo(map);
 
-map.addLayer(mvtSource);
+map.addLayer(mvtSourceZ13);
 
 var baseMaps = {
     "全国最新写真"   :seamless,
