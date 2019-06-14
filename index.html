@@ -49,10 +49,77 @@ var  onGsClick = function(e) {
 }
 
 
-var mvtSource = new L.TileLayer.MVTSource({
-    url: "./mvt/{z}/{x}/{y}.pbf",
-    minZoom: 8,
+var mvtSourceZ13 = new L.TileLayer.MVTSource({
+    url: "https://wata909.github.io/maff_fude/mvt/{z}/{x}/{y}.pbf",
+    minZoom: 13,
     maxZoom: 13,
+    zIndex: 3,
+//    debug: true,
+    clickableLayers: ["fude"],
+    mutexToggle:true,
+    attribution: "<a href='http://www.maff.go.jp/j/tokei/porigon/index.html' target='_blank'>出典：「筆ポリゴンデータ」（農林水産省）（R1年6月5日に利用）</a>",
+    getIDForLayerFeature: function(feature) {
+        return feature.properties["FID"];
+    },
+    filter: function(feature, context) {
+        if (feature.layer.name === 'fude') {
+            return true;
+        }
+    return false;
+    },
+    onClick: onGsClick,
+    style: function (feature) {
+        var style = {};    
+        var type = feature.type;
+        switch (type) {
+            case 1: //'Point'
+                style.color = 'rgba(255,0,0,1)';
+                style.radius = function(){
+                    var z = map.getZoom()
+                    var dotsize = 1.5            
+                    var radius =  dotsize * Math.exp(Math.log(Math.sqrt(z-4)))
+                    return radius
+            
+                };
+            break;
+            case 2: //'LineString'
+                style.color = 'rgba(161,217,155,0.8)';
+                style.size = 3;
+                style.selected = {
+                    color: 'rgba(255,25,0,0.5)',
+                    size: 4
+                };
+            break;
+            case 3: //'Polygon'
+                var fColor;
+                if (feature.properties.LC=='田'){
+                fColor='rgba(255,255,0,0.5)';}
+                else
+                if (feature.properties.LC=="畑"){
+                fColor='rgba(138,95,46,0.5)';}
+                style.color = fColor;
+                style.outline = {
+                    color:  'rgba(0,0,0,0.5)',
+                    size: 0.1
+                };
+                style.selected = {
+                    color: 'rgba(255,140,0,0.3)',
+                    outline: {
+                        color: 'rgba(255,140,0,1)',
+                        size: 2
+                    }
+                };
+            break;
+        }
+        return style;
+    }
+
+});
+
+var mvtSourceZ16 = new L.TileLayer.MVTSource({
+    url: "./mvt/{z}/{x}/{y}.pbf",
+    minZoom: 16,
+    maxZoom: 16,
     zIndex: 3,
 //    debug: true,
     clickableLayers: ["fude"],
@@ -134,7 +201,8 @@ var baseMaps = {
     };      
 
 var overlayMaps = {
-    "筆ポリゴン" : mvtSource
+    "筆ポリゴン(Z=13)" : mvtSourceZ13,
+    "筆ポリゴン(Z=16)" : mvtSourceZ16
     };
 
 L.control.layers(baseMaps, overlayMaps).addTo(map);
